@@ -5,10 +5,6 @@ interface FavoritesContextType {
   favorites: string[];
   isFavorite: (coinId: string) => boolean;
   toggleFavorite: (coinId: string) => void;
-  // setSelectedWallpaper: any;
-  // selectedWallpaper: any;
-  // setActiveWallpaper: any;
-  // activeWallpaper: any;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
@@ -18,20 +14,18 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchFavorites = async () => {
       try {
-      
         const items = await getFavorites();
-       
+
         setFavorites(items);
       } catch (err) {
         console.error(err as Error);
-      } 
+      }
     };
     fetchFavorites();
-  }, []); 
-  
+  }, []);
 
   const isFavorite = (coinId: string) => {
     return favorites.some((fav) => fav === coinId);
