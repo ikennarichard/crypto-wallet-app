@@ -1,8 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { LinearGradient } from "expo-linear-gradient";
+import { pallete } from "@/constants/colors";
+import { useCryptoChart } from "@/hooks/useCryptoChart";
+import { formatNumber } from "@/lib/utils";
 import { RefreshCw } from "lucide-react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -25,88 +25,18 @@ export default function CryptoPriceTrendChart({
   coinId = "bitcoin",
   days = 7,
   vsCurrency = "usd",
-  height = 220,
+  height = 320,
 }: Props) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [labels, setLabels] = useState<string[]>([]);
-  const [dataPoints, setDataPoints] = useState<number[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState(days);
 
-  const fetchKey = `${coinId}_prices_${vsCurrency}_${selectedPeriod}`;
-
-  const fetchData = useCallback(
-    async (force = false) => {
-      try {
-        setError(null);
-        if (!force) {
-          const cached = await AsyncStorage.getItem(fetchKey);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (Date.now() - parsed.fetchedAt < 1000 * 60 * 2) {
-              setLabels(parsed.labels);
-              setDataPoints(parsed.dataPoints);
-              setLoading(false);
-              return;
-            }
-          }
-        }
-
-        setLoading(true);
-        const daysQuery =
-          typeof selectedPeriod === "number"
-            ? String(selectedPeriod)
-            : selectedPeriod;
-        const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=${vsCurrency}&days=${daysQuery}&interval=hourly`;
-
-        const resp = await axios.get(url);
-        if (!resp.data) throw new Error(`CoinGecko error ${resp.status}`);
-        const json = resp.data;
-        if (!Array.isArray(json.prices)) throw new Error("Unexpected response");
-
-        const prices: [number, number][] = json.prices;
-        const points = prices.map((p) => Number(p[1]));
-        const rawLabels = prices.map((p) => new Date(p[0]));
-
-        const maxLabels = 6;
-        const step = Math.max(1, Math.floor(points.length / maxLabels));
-
-        const chartLabels = Array(points.length).fill("");
-        rawLabels.forEach((_, idx) => {
-          if (idx % step === 0)
-            chartLabels[idx] = formatLabel(rawLabels[idx], selectedPeriod);
-        });
-
-        setLabels(chartLabels);
-        setDataPoints(points);
-
-        await AsyncStorage.setItem(
-          fetchKey,
-          JSON.stringify({
-            fetchedAt: Date.now(),
-            labels: chartLabels,
-            dataPoints: points,
-          })
-        );
-
-        setLoading(false);
-      } catch (err: any) {
-        setLoading(false);
-        setError(err.message || "Failed to fetch data");
-      }
-    },
-    [coinId, selectedPeriod, vsCurrency, fetchKey]
-  );
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data, isLoading, error, refetch, isRefetching } = useCryptoChart({
+    coinId,
+    vsCurrency,
+    selectedPeriod,
+  });
 
   const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchData(true);
-    setRefreshing(false);
+    refetch();
   };
 
   const periods = [
@@ -117,7 +47,7 @@ export default function CryptoPriceTrendChart({
     { label: "1Y", value: 365 },
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <View className="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
         <View className="items-center justify-center" style={{ height }}>
@@ -128,13 +58,15 @@ export default function CryptoPriceTrendChart({
     );
   }
 
-  if (error) {
+  if (!data || error) {
     return (
       <View className="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
         <View className="items-center justify-center" style={{ height }}>
-          <Text className="text-red-400 text-center mb-4">Error: {error}</Text>
+          <Text className="text-red-400 text-center mb-4">
+            Error: {error?.message}
+          </Text>
           <Pressable
-            onPress={() => fetchData(true)}
+            onPress={() => refetch()}
             className="bg-cyan-500/20 px-6 py-3 rounded-full"
           >
             <Text className="text-cyan-400 font-semibold">Retry</Text>
@@ -146,47 +78,56 @@ export default function CryptoPriceTrendChart({
 
   const screenWidth = Dimensions.get("window").width - 32;
   const isPositiveTrend =
-    dataPoints.length > 1 && dataPoints[dataPoints.length - 1] > dataPoints[0];
+    data.dataPoints.length > 1 &&
+    data.dataPoints[data.dataPoints.length - 1] > data.dataPoints[0];
 
+  // chart config
   const chartConfig = {
-    backgroundColor: "transparent",
-    backgroundGradientFrom: "rgba(17, 24, 39, 0.6)",
-    backgroundGradientTo: "rgba(17, 24, 39, 0.6)",
+    backgroundColor: "#0f172a",
+    backgroundGradientFrom: "#1e293b",
+    backgroundGradientFromOpacity: 1,
+    backgroundGradientTo: "#0f172a",
+    backgroundGradientToOpacity: 1,
     decimalPlaces: 2,
-    color: (opacity = 1) =>
-      isPositiveTrend
-        ? `rgba(34, 211, 238, ${opacity})`
-        : `rgba(239, 68, 68, ${opacity})`,
-    labelColor: (opacity = 1) => `rgba(156, 163, 175, ${opacity})`,
+    color: (opacity = 1) => `rgba(191, 255, 0, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(148, 163, 184, ${opacity})`,
     style: {
       borderRadius: 16,
     },
     propsForDots: {
-      r: "0",
+      r: "3",
+      strokeWidth: "3",
+      stroke: pallete.lime,
+      fill: pallete.lime,
+      shadowColor: "#22d3ee",
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.8,
+      shadowRadius: 8,
     },
     propsForBackgroundLines: {
       strokeDasharray: "",
-      stroke: "rgba(75, 85, 99, 0.2)",
+      stroke: "#1e293b",
+      strokeWidth: 1,
+      strokeOpacity: 0.3,
     },
+    propsForLabels: {
+      fontSize: 10,
+      fontWeight: "600",
+    },
+    fillShadowGradient: "#06b6d4",
+    fillShadowGradientOpacity: 0.3,
+    strokeWidth: 3,
   };
 
   return (
-    <View className="relative overflow-hidden rounded-2xl">
-      {/* Gradient Border */}
-      <LinearGradient
-        colors={["#22d3ee", "#a855f7"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="absolute inset-0 opacity-30"
-      />
-
-      <View className="m-[1px] bg-gray-900/80 backdrop-blur-xl rounded-2xl overflow-hidden">
+    <View className="relative overflow-hidden mb-3">
+      <View className="m-[1px] backdrop-blur-xl overflow-hidden">
         <ScrollView
           horizontal={false}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
-              refreshing={refreshing}
+              refreshing={isLoading}
               onRefresh={onRefresh}
               tintColor="#22d3ee"
               colors={["#22d3ee"]}
@@ -205,7 +146,7 @@ export default function CryptoPriceTrendChart({
               >
                 <RefreshCw
                   className={`w-4 h-4 text-cyan-400 ${
-                    refreshing ? "animate-spin" : ""
+                    isRefetching ? "animate-spin" : ""
                   }`}
                 />
               </Pressable>
@@ -237,21 +178,35 @@ export default function CryptoPriceTrendChart({
           </View>
 
           {/* Chart */}
-          <View className="p-4">
+          <View>
             <LineChart
-              data={{ labels, datasets: [{ data: dataPoints }] }}
-              width={screenWidth - 64}
+              data={{
+                labels: data.labels,
+                datasets: [
+                  {
+                    data: data.dataPoints,
+                    color: (opacity = 1) => `rgba(34, 211, 238, ${opacity})`,
+                    strokeWidth: 3,
+                  },
+                ],
+              }}
+              width={screenWidth}
               height={height}
-              withDots={false}
+              withDots={true}
               withInnerLines={true}
               withOuterLines={false}
-              withShadow={false}
+              withShadow={true}
+              withVerticalLabels={true}
+              withHorizontalLabels={true}
               yAxisLabel={vsCurrency === "usd" ? "$" : ""}
               chartConfig={chartConfig}
               bezier
               style={{
-                borderRadius: 12,
+                borderRadius: 16,
+                marginVertical: 6,
               }}
+              segments={4}
+              formatYLabel={(value) => formatNumber(Number(value), 1)}
             />
 
             <View className="mt-4 flex-row items-center justify-center">
@@ -261,7 +216,7 @@ export default function CryptoPriceTrendChart({
                 }`}
               />
               <Text className="text-gray-400 text-xs">
-                Last {String(selectedPeriod)} day(s) · CoinGecko
+                Last {String(selectedPeriod)} day(s) 
               </Text>
             </View>
           </View>
@@ -269,15 +224,4 @@ export default function CryptoPriceTrendChart({
       </View>
     </View>
   );
-}
-
-function formatLabel(d: Date, days: number | string) {
-  if (typeof days === "string" || Number(days) > 7) {
-    return `${d.getMonth() + 1}/${d.getDate()}`;
-  }
-  return `${pad(d.getHours())}:00`;
-}
-
-function pad(n: number) {
-  return n < 10 ? `0${n}` : String(n);
 }
