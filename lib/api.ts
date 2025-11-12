@@ -19,7 +19,7 @@ async function fetchWithErrorHandling<T>(url: string): Promise<T> {
 
     return await response.data;
   } catch (error) {
-    console.log(error)
+    console.error(error);
     if (error instanceof ApiError) {
       throw error;
     }
