@@ -1,6 +1,6 @@
 # Crypto Wallet Mobile App 🚀
 
-A modern, real-time cryptocurrency tracking mobile application built with React Native and Expo. Features live price tracking, interactive charts, search functionality, and favorites management with a sleek Web3-inspired design.
+A modern, real-time cryptocurrency tracking mobile application built with React Native and Expo. Features interactive charts, search functionality, and favorites management with a sleek Web3-inspired design.
 
 <p align="center">
   <img src="./assets/images/Screenshot_1.jpg" width="250"  />
