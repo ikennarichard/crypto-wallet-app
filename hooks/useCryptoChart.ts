@@ -42,7 +42,7 @@ export function useCryptoChart({
       const url = `${BASE_URL}/coins/${coinId}/market_chart?vs_currency=${vsCurrency}&days=${selectedPeriod}&interval=daily`;
 
       const response = await axios.get(url, { headers: getApiHeaders() });
-      console.log(response, url);
+      // console.log(response, url);
 
       if (!response.data.prices || !Array.isArray(response.data.prices)) {
         throw new Error("Unexpected API response format");
