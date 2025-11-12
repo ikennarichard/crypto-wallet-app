@@ -2,9 +2,11 @@
 
 A modern, real-time cryptocurrency tracking mobile application built with React Native and Expo. Features live price tracking, interactive charts, search functionality, and favorites management with a sleek Web3-inspired design.
 
-![creenshot1]('/assets/images/Screenshot_20251112_170944_Expo Go.jpg')
-![screenshot2]('/assets/images/Screenshot_20251112_170953_Expo Go.jpg')
-![screenshot3]('/assets/images/Screenshot_20251112_192603_Expo Go.jpg')
+<p align="center">
+  <img src="./assets/images/Screenshot_1.jpg" width="250"  />
+  <img src="./assets/images/Screenshot_2.jpg" width="250" />
+  <img src="./assets/images/Screenshot_3.jpg" width="250" />
+</p>
 
 ## DEMO
 
