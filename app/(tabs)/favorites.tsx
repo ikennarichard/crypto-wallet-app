@@ -18,7 +18,7 @@ import {
 
 export default function Favorites() {
   const [refreshing, setRefreshing] = useState(false);
-  const { favorites, toggleFavorite } = useFavorites();
+  const { favorites } = useFavorites();
   const scrollY = React.useRef(new Animated.Value(0)).current;
   const router = useRouter();
 
@@ -85,9 +85,9 @@ export default function Favorites() {
   return (
     <View className="flex-1 bg-black">
       <LinearGradient
-        colors={["#1A5D4D", "#000000", "#000000"]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
+        colors={["#1A5D4D", "#0B2520", "#000000"]}
+        start={{ x: 0.4, y: -0.2 }}
+        end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFillObject}
       />
       <Animated.View
@@ -212,8 +212,6 @@ export default function Favorites() {
               >
                 <CryptoCard
                   coin={coin}
-                  isFavorite={true}
-                  onToggleFavorite={toggleFavorite}
                 />
               </Animated.View>
             ))}
