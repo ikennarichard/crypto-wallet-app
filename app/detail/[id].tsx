@@ -1,5 +1,6 @@
 import CryptoPriceTrendChart from "@/components/CryptoPriceTrencdChart";
 import { ErrorState } from "@/components/ErrorState";
+import LoadingState from "@/components/LoadingState";
 import { palette } from "@/constants/colors";
 import { getCoinDetail } from "@/lib/api";
 import { formatNumber } from "@/lib/utils";
@@ -7,13 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { clsx as cn } from "clsx";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Activity,
-  ArrowLeft,
-  Award,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react-native";
+import { Activity, Award, TrendingDown, TrendingUp } from "lucide-react-native";
 import React from "react";
 import {
   Animated,
@@ -57,11 +52,6 @@ const CoinDetail = () => {
   if (isError) {
     return (
       <View className="flex-1 bg-black">
-        <LinearGradient
-          colors={["#0a0a0a", "#1a0a2e", "#0a0a0a"]}
-          locations={[0, 0.5, 1]}
-          className="absolute inset-0"
-        />
         <View className="flex-1 justify-center p-4">
           <ErrorState
             message={
@@ -77,19 +67,7 @@ const CoinDetail = () => {
   }
 
   if (isLoading) {
-    return (
-      <View className="flex-1 bg-black">
-        <LinearGradient
-          colors={["#0a0a0a", "#1a0a2e", "#0a0a0a"]}
-          locations={[0, 0.5, 1]}
-          className="absolute inset-0"
-        />
-        <View className="flex-1 justify-center items-center">
-          <View className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-          <Text className="text-gray-400 mt-4">Loading details...</Text>
-        </View>
-      </View>
-    );
+    return <LoadingState />;
   }
 
   if (!coin) return null;
@@ -103,7 +81,6 @@ const CoinDetail = () => {
           onPress={() => router.back()}
           className="flex-row items-center bg-gray-900/80 backdrop-blur-xl px-4 py-3 rounded-full border border-gray-700/50"
         >
-          <ArrowLeft className="w-5 h-5 text-white mr-2" />
           <Text className="text-white font-semibold">Back</Text>
         </Pressable>
       </View>

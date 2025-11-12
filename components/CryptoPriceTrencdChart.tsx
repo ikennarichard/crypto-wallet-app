@@ -1,4 +1,4 @@
-import { pallete } from "@/constants/colors";
+import { palette } from "@/constants/colors";
 import { useCryptoChart } from "@/hooks/useCryptoChart";
 import { formatNumber } from "@/lib/utils";
 import { RefreshCw } from "lucide-react-native";
@@ -10,15 +10,24 @@ import {
   RefreshControl,
   ScrollView,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { ErrorState } from "./ErrorState";
 
 type Props = {
   coinId?: string;
   days?: number | string;
   vsCurrency?: string;
   height?: number;
+};
+
+const formatLabels = (labels: string[], maxLabels = 6) => {
+  if (labels.length <= maxLabels) return labels;
+
+  const step = Math.floor(labels.length / (maxLabels - 1));
+  return labels.filter((_, i) => i % step === 0);
 };
 
 export default function CryptoPriceTrendChart({
@@ -29,7 +38,7 @@ export default function CryptoPriceTrendChart({
 }: Props) {
   const [selectedPeriod, setSelectedPeriod] = useState(days);
 
-  const { data, isLoading, error, refetch, isRefetching } = useCryptoChart({
+  const { data, isLoading, error, refetch, isPending } = useCryptoChart({
     coinId,
     vsCurrency,
     selectedPeriod,
@@ -59,21 +68,7 @@ export default function CryptoPriceTrendChart({
   }
 
   if (!data || error) {
-    return (
-      <View className="bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6">
-        <View className="items-center justify-center" style={{ height }}>
-          <Text className="text-red-400 text-center mb-4">
-            Error: {error?.message}
-          </Text>
-          <Pressable
-            onPress={() => refetch()}
-            className="bg-cyan-500/20 px-6 py-3 rounded-full"
-          >
-            <Text className="text-cyan-400 font-semibold">Retry</Text>
-          </Pressable>
-        </View>
-      </View>
-    );
+    return <ErrorState message={error?.message || 'An error occured. Try Again!'} onRetry={refetch} />;
   }
 
   const screenWidth = Dimensions.get("window").width - 32;
@@ -97,8 +92,8 @@ export default function CryptoPriceTrendChart({
     propsForDots: {
       r: "3",
       strokeWidth: "3",
-      stroke: pallete.lime,
-      fill: pallete.lime,
+      stroke: palette.lime,
+      fill: palette.lime,
       shadowColor: "#22d3ee",
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.8,
@@ -118,6 +113,9 @@ export default function CryptoPriceTrendChart({
     fillShadowGradientOpacity: 0.3,
     strokeWidth: 3,
   };
+
+  const maxLabels = selectedPeriod === 7 ? 7 : 6;
+  const formattedLabels = formatLabels(data.labels, maxLabels);
 
   return (
     <View className="relative overflow-hidden mb-3">
@@ -140,16 +138,18 @@ export default function CryptoPriceTrendChart({
               <Text className="text-white font-bold text-lg">
                 Price History
               </Text>
-              <Pressable
+              <TouchableOpacity
                 onPress={onRefresh}
                 className="p-2 bg-gray-800/50 rounded-full"
               >
                 <RefreshCw
-                  className={`w-4 h-4 text-cyan-400 ${
-                    isRefetching ? "animate-spin" : ""
+                  className={` ${
+                    isPending ? "animate-spin" : ""
                   }`}
+                  color='rgba(255,255,255,0.6)'
+                  size={18}
                 />
-              </Pressable>
+              </TouchableOpacity>
             </View>
 
             <View className="flex-row gap-2">
@@ -181,7 +181,7 @@ export default function CryptoPriceTrendChart({
           <View>
             <LineChart
               data={{
-                labels: data.labels,
+                labels: formattedLabels,
                 datasets: [
                   {
                     data: data.dataPoints,
@@ -199,7 +199,13 @@ export default function CryptoPriceTrendChart({
               withVerticalLabels={true}
               withHorizontalLabels={true}
               yAxisLabel={vsCurrency === "usd" ? "$" : ""}
-              chartConfig={chartConfig}
+              yAxisSuffix=""
+              chartConfig={{
+                ...chartConfig,
+                propsForLabels: {
+                  fontSize: 8,
+                },
+              }}
               bezier
               style={{
                 borderRadius: 16,
@@ -216,7 +222,7 @@ export default function CryptoPriceTrendChart({
                 }`}
               />
               <Text className="text-gray-400 text-xs">
-                Last {String(selectedPeriod)} day(s) 
+                Last {String(selectedPeriod)} day(s)
               </Text>
             </View>
           </View>
