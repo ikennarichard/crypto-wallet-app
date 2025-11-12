@@ -8,7 +8,7 @@ A modern, real-time cryptocurrency tracking mobile application built with React 
 
 ## DEMO
 
-- [Video]()
+- [Video](https://drive.google.com/file/d/1FXFXwljS1Uv1DKgfQOsZQqipoE4OmOYC/view?usp=drivesdk)
 - [Appetize]()
 
 ## Features
