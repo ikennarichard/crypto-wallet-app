@@ -1,28 +1,32 @@
 import CryptoPriceTrendChart from "@/components/CryptoPriceTrencdChart";
 import { ErrorState } from "@/components/ErrorState";
+import FavoriteButton from "@/components/FavoriteButton";
 import LoadingState from "@/components/LoadingState";
 import { palette } from "@/constants/colors";
+import { useFavorites } from "@/context/FavortesContext";
 import { getCoinDetail } from "@/lib/api";
 import { formatNumber } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { clsx as cn } from "clsx";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Activity, Award, TrendingDown, TrendingUp } from "lucide-react-native";
 import React from "react";
 import {
   Animated,
+  Dimensions,
   Image,
   Pressable,
   ScrollView,
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const CoinDetail = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const scrollY = React.useRef(new Animated.Value(0)).current;
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const {
     data: coin,
@@ -42,6 +46,10 @@ const CoinDetail = () => {
     outputRange: [1, 0],
     extrapolate: "clamp",
   });
+
+  const handleFavoritePress = () => {
+    toggleFavorite(id);
+  };
 
   const headerScale = scrollY.interpolate({
     inputRange: [0, 100],
@@ -75,14 +83,29 @@ const CoinDetail = () => {
   const isPositive = coin.price_change_percentage_24h > 0;
 
   return (
-    <View className="flex-1 bg-black">
-      <View className="absolute top-12 left-4 z-50">
+    <SafeAreaView className="flex-1 bg-black">
+      <View
+
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: 'space-between',
+          marginHorizontal: 12,
+          marginTop: 15
+        }}
+      >
         <Pressable
           onPress={() => router.back()}
           className="flex-row items-center bg-gray-900/80 backdrop-blur-xl px-4 py-3 rounded-full border border-gray-700/50"
         >
           <Text className="text-white font-semibold">Back</Text>
         </Pressable>
+
+        <FavoriteButton
+          item={coin}
+          isFavorite={isFavorite(id)}
+          onToggleFavorite={handleFavoritePress}
+        />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -91,7 +114,7 @@ const CoinDetail = () => {
             opacity: headerOpacity,
             transform: [{ scale: headerScale }],
           }}
-          className="pt-24 pb-8 px-4"
+          className="pt10 pb-8 px-4"
         >
           <View className="items-center mb-6">
             <View className="relative mb-4">
@@ -105,9 +128,11 @@ const CoinDetail = () => {
               </View>
             </View>
 
-            <Text className="text-3xl font-bold text-white mb-1">
-              {coin.name}
-            </Text>
+            <View className="">
+              <Text className="text-3xl font-bold text-white mb-1">
+                {coin.name}
+              </Text>
+            </View>
             <Text className="text-gray-400 text-lg uppercase">
               {coin.symbol}
             </Text>
@@ -230,7 +255,7 @@ const CoinDetail = () => {
 
         <View className="h-8" />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
