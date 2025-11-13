@@ -13,7 +13,6 @@ import { Activity, Award, TrendingDown, TrendingUp } from "lucide-react-native";
 import React from "react";
 import {
   Animated,
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
@@ -85,13 +84,12 @@ const CoinDetail = () => {
   return (
     <SafeAreaView className="flex-1 bg-black">
       <View
-
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
           marginHorizontal: 12,
-          marginTop: 15
+          marginTop: 15,
         }}
       >
         <Pressable

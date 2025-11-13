@@ -25,7 +25,7 @@ interface CryptoToken {
   holding?: number;
 }
 
-export default function CryptoWalletScreen() {
+export default function Profile() {
   const { data, isLoading } = useQuery({
     queryKey: ["coins"],
     queryFn: getCoins,

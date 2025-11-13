@@ -12,6 +12,7 @@ export default {
       supportsTablet: true,
     },
     extra: {
+      apiUrl: process.env.COINGECKO_API_URL,
       eas: {
         projectId: "2ef2156b-44ce-4740-b4bc-aa6509d2a517",
       },
@@ -19,9 +20,8 @@ export default {
     android: {
       package: "com.richyyy.cryptowallet",
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
+        backgroundColor: "#fff",
         foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundImage: "./assets/images/adaptive-icon.png",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,

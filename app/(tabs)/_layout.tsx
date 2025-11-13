@@ -109,10 +109,10 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="wallet"
+        name="profile"
         options={{
-          title: "Wallet",
-          tabBarLabel: "Wallet",
+          title: "Profile",
+          tabBarLabel: "Profile",
         }}
       />
     </Tabs>

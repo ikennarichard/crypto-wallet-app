@@ -5,7 +5,7 @@ import { getCoins } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Heart, TrendingDown, TrendingUp } from "lucide-react-native";
+import { TrendingDown, TrendingUp } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import {
   Animated,
@@ -129,7 +129,7 @@ export default function Favorites() {
               </View>
             </View>
 
-              <Text className="text-white mb-3">Token Trends</Text>
+            <Text className="text-white mb-3">Token Trends</Text>
             <View className="flex-row gap-3">
               <View className="flex-1 bg-gray-900/60 backdrop-blur-xl p-4 rounded-2xl border border-gray-700/50">
                 <View className="flex-row items-center mb-2">
@@ -157,13 +157,6 @@ export default function Favorites() {
         <LoadingState />
       ) : favoriteCoins.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
-          <View className="relative mb-8">
-            <View className="absolute inset-0 bg-pink-500/20 blur-3xl rounded-full scale-150" />
-            <View className="relative w-32 h-32 bg-gray-800/50 rounded-full items-center justify-center border-2 border-gray-700/50">
-              <Heart className="w-16 h-16 text-gray-600" />
-            </View>
-          </View>
-
           <Text className="text-2xl font-bold text-white mb-3 text-center">
             No Favorites Yet
           </Text>
@@ -210,9 +203,7 @@ export default function Favorites() {
                   transform: [{ translateY: 0 }],
                 }}
               >
-                <CryptoCard
-                  coin={coin}
-                />
+                <CryptoCard coin={coin} />
               </Animated.View>
             ))}
           </View>

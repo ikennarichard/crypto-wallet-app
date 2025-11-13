@@ -4,14 +4,14 @@ import "@/global.css";
 import { queryClient } from "@/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
-import { StatusBar } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GluestackUIProvider mode="light">
+        <StatusBar style="auto" />
         <FavoritesProvider>
-          <StatusBar />
           <Stack
             initialRouteName="(tabs)"
             screenOptions={{ headerShown: false }}
